@@ -21,6 +21,8 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
+      overflow: visible;
+      padding: 2rem;
     }
     #setup {
       font-size: 2rem;
@@ -63,25 +65,48 @@
       align-items: center;
     }
     .digit {
-      font-size: 10rem;
+      font-size: 6rem; /* reduced from 10rem */
     }
     .symbol {
-      font-size: 10rem;
+      font-size: 5rem; /* reduced from 10rem */
       font-weight: bold;
       display: flex;
       align-items: center;
-      height: 10rem;
+      height: 5rem;
     }
     .number-block input {
-      font-size: 8rem;
-      letter-spacing: 1rem;
+      font-size: 4rem; /* reduced from 8rem */
+      letter-spacing: 0.5rem;
       border: none;
-      border-bottom: 6px solid #001858;
+      border-bottom: 4px solid #001858;
       text-align: center;
-      width: 10rem;
+      width: 6rem;
       outline: none;
       background-color: #fef6e4;
       color: #001858;
+    }
+    #answer-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      margin-bottom: 2rem;
+      max-width: 32rem;
+    }
+    .answer-btn {
+      font-size: 2rem;
+      width: 3rem;
+      height: 3rem;
+      background-color: #f582ae;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .answer-btn:hover, .answer-btn:focus {
+      background-color: #ffb3c6;
     }
     #feedback {
       margin-top: 2rem;
@@ -107,17 +132,17 @@
     /* Responsive styles for mobile */
     @media (max-width: 600px) {
       .number-block input {
-        font-size: 3rem;
-        width: 5rem;
-        letter-spacing: 0.3rem;
-        border-bottom-width: 3px;
+        font-size: 1.5rem;
+        width: 3rem;
+        letter-spacing: 0.1rem;
+        border-bottom-width: 2px;
       }
       .digit {
-        font-size: 4rem;
+        font-size: 2rem;
       }
       .symbol {
-        font-size: 4rem;
-        height: 4rem;
+        font-size: 2rem;
+        height: 2rem;
       }
       #game-container {
         padding: 1rem;
@@ -125,6 +150,14 @@
       }
       #score, #feedback {
         font-size: 2rem;
+      }
+      #answer-buttons {
+        max-width: 16rem;
+      }
+      .answer-btn {
+        font-size: 1rem;
+        width: 1.7rem;
+        height: 1.7rem;
       }
     }
   </style>
@@ -159,6 +192,7 @@
       </div>
     </div>
 
+    <div id="answer-buttons" style="display:none;"></div>
     <div id="feedback"></div>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
@@ -249,6 +283,24 @@
           );
         }
 
+        function createAnswerButtons() {
+          const buttonsContainer = document.getElementById('answer-buttons');
+          buttonsContainer.innerHTML = '';
+          for (let i = 1; i <= 20; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'answer-btn';
+            btn.textContent = i;
+            btn.setAttribute('data-value', i);
+            btn.addEventListener('click', function() {
+              const input = document.getElementById('input');
+              input.value = i;
+              input.dispatchEvent(new Event('input', { bubbles: true }));
+              input.focus();
+            });
+            buttonsContainer.appendChild(btn);
+          }
+        }
+
         window.startGame = function() {
           min1 = parseInt(document.getElementById('min1').value);
           max1 = parseInt(document.getElementById('max1').value);
@@ -259,12 +311,14 @@
           document.getElementById('score').style.display = 'block';
           document.getElementById('question-container').style.display = 'flex';
           document.getElementById('input').style.display = 'block';
+          document.getElementById('answer-buttons').style.display = 'flex';
 
           const container = document.getElementById('game-container');
           container.style.border = '1rem solid #001858';
           container.style.borderRadius = '2rem';
           container.style.padding = '2rem';
 
+          createAnswerButtons();
           generateQuestion();
         };
 
