@@ -50,15 +50,15 @@
       background-color: #ffb3c6;
       transform: translateY(-2px) scale(1.04);
     }
-    #score {
-      font-size: 4rem;
-      margin: 2rem 0;
-    }
+
+    /* Remove score */
+    /* #score { display: none; } */
+
     #question-container {
       display: flex;
       justify-content: center;
       align-items: flex-end;
-      gap: 2rem;
+      gap: 4rem; /* Larger gap */
       margin-bottom: 2rem;
       flex-wrap: wrap;
     }
@@ -68,37 +68,38 @@
       align-items: center;
     }
     .digit {
-      font-size: 6rem;
+      font-size: 9rem; /* Larger number */
+      font-weight: bold;
     }
     .symbol {
-      font-size: 5rem;
+      font-size: 8rem; /* Larger symbol */
       font-weight: bold;
       display: flex;
       align-items: center;
-      height: 5rem;
+      height: 8rem;
     }
     #answer-buttons {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 0.8rem;
+      gap: 1.5rem; /* Larger gap */
       margin-top: 1rem;
       margin-bottom: 2rem;
-      max-width: 32rem;
+      max-width: 50rem;
     }
     .answer-btn {
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0;              /* Remove extra padding */
-      line-height: 1;          /* Prevent vertical offset */
-      font-size: 2.2rem;
-      width: 3.3rem;
-      height: 3.3rem;
+      padding: 0;
+      line-height: 1;
+      font-size: 4rem;       /* Larger font */
+      width: 6rem;           /* Larger button */
+      height: 6rem;
       background: linear-gradient(135deg, #f582ae 60%, #fcd5ce 100%);
       color: #001858;
       border: none;
-      border-radius: 1.2rem;
+      border-radius: 2rem;   /* Larger radius */
       cursor: pointer;
       box-shadow: 0 2px 12px rgba(245,130,174,0.12);
       transition: background 0.2s, transform 0.13s, box-shadow 0.2s;
@@ -149,33 +150,46 @@
         border-bottom-width: 2px;
       }
       .digit {
-        font-size: 2rem;
+        font-size: 3rem;
       }
       .symbol {
-        font-size: 2rem;
-        height: 2rem;
+        font-size: 2.5rem;
+        height: 2.5rem;
       }
       #game-container {
         padding: 1rem;
         border-width: 0.5rem;
       }
-      #score, #feedback {
+      #feedback {
         font-size: 2rem;
       }
       #answer-buttons {
         max-width: 16rem;
       }
       .answer-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        line-height: 1;
-        font-size: 1rem;
-        width: 1.7rem;
-        height: 1.7rem;
-        border-radius: 0.6rem;
+        font-size: 2rem;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 1rem;
       }
+    }
+    /* Style for the back button */
+    #back-btn {
+      font-size: 2rem;
+      padding: 0.5rem 2rem;
+      margin-bottom: 2rem;
+      background-color: #8ecae6;
+      color: #001858;
+      border: none;
+      border-radius: 0.8rem;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      box-shadow: 0 4px 14px rgba(140,202,230,0.12);
+    }
+    #back-btn:hover {
+      background-color: #219ebc;
+      color: #fef6e4;
+      transform: scale(1.06);
     }
   </style>
 </head>
@@ -193,7 +207,7 @@
       <button onclick="startGame()">Start Game</button>
     </div>
 
-    <div id="score" style="display:none;">Score: 0</div>
+    <button id="back-btn" style="display:none;" onclick="goBack()">Back</button>
 
     <div id="question-container" style="display:none;">
       <div class="number-block" id="left-block">
@@ -219,7 +233,7 @@
         }
 
         let num1, num2;
-        let score = 0;
+        // let score = 0; // REMOVE SCORE
         const questionStats = {};
         let min1 = 1, max1 = 10, min2 = 1, max2 = 10;
 
@@ -324,8 +338,8 @@
             const key = `${num1}+${num2}`;
             questionStats[key] = (questionStats[key] || 0) + 1;
 
-            score++;
-            document.getElementById('score').textContent = `Score: ${score}`;
+            // score++;
+            // document.getElementById('score').textContent = `Score: ${score}`; // REMOVE SCORE
             const feedback = document.getElementById('feedback');
             feedback.textContent = '✅ Correct!';
             feedback.classList.add('correct-feedback');
@@ -355,9 +369,10 @@
           max2 = parseInt(document.getElementById('max2').value);
 
           document.getElementById('setup').style.display = 'none';
-          document.getElementById('score').style.display = 'block';
+          // document.getElementById('score').style.display = 'block'; // REMOVE SCORE
           document.getElementById('question-container').style.display = 'flex';
           document.getElementById('answer-buttons').style.display = 'flex';
+          document.getElementById('back-btn').style.display = 'inline-block';
 
           const container = document.getElementById('game-container');
           container.style.border = '1rem solid #001858';
@@ -366,6 +381,19 @@
 
           createAnswerButtons();
           generateQuestion();
+        };
+
+        window.goBack = function() {
+          document.getElementById('setup').style.display = 'block';
+          document.getElementById('question-container').style.display = 'none';
+          document.getElementById('answer-buttons').style.display = 'none';
+          document.getElementById('feedback').textContent = '';
+          document.getElementById('back-btn').style.display = 'none';
+
+          const container = document.getElementById('game-container');
+          container.style.border = '';
+          container.style.borderRadius = '';
+          container.style.padding = '2rem';
         };
 
       });
