@@ -87,6 +87,11 @@
       max-width: 32rem;
     }
     .answer-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;              /* Remove extra padding */
+      line-height: 1;          /* Prevent vertical offset */
       font-size: 2.2rem;
       width: 3.3rem;
       height: 3.3rem;
@@ -100,9 +105,6 @@
       outline: none;
       font-weight: 600;
       position: relative;
-      display: flex;           /* added for centering */
-      align-items: center;     /* added for centering */
-      justify-content: center; /* added for centering */
     }
     .answer-btn:hover, .answer-btn:focus {
       background: linear-gradient(135deg, #ffb3c6 70%, #fcd5ce 100%);
@@ -164,13 +166,15 @@
         max-width: 16rem;
       }
       .answer-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        line-height: 1;
         font-size: 1rem;
         width: 1.7rem;
         height: 1.7rem;
         border-radius: 0.6rem;
-        display: flex;           /* added for centering in mobile */
-        align-items: center;     /* added for centering in mobile */
-        justify-content: center; /* added for centering in mobile */
       }
     }
   </style>
