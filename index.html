@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -138,141 +138,145 @@
 
     <div id="feedback"></div>
     <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // ---- No BOM ----
+
         const BASE_URL = "https://raw.githubusercontent.com/jherr70-create/MATH/main/";
-function getAudioUrl(name) {
-  return `${BASE_URL}${name}.mp3`;
-}
-      }
+        function getAudioUrl(name) {
+          return `${BASE_URL}${name}.mp3`;
+        }
 
-      let num1, num2;
-      let score = 0;
-      const questionStats = {};
-      let min1 = 1, max1 = 10, min2 = 1, max2 = 10;
+        let num1, num2;
+        let score = 0;
+        const questionStats = {};
+        let min1 = 1, max1 = 10, min2 = 1, max2 = 10;
 
-      function playAudioSequence(sequence, elements = []) {
-        const audioFiles = sequence.map(n => {
-          if (typeof n === 'number') {
-            const names = ['ONE','TWO','THREE','FOUR','FIVE','SIX','SEVEN','EIGHT','NINE','TEN',
-              'ELEVEN','TWELVE','THIRTEEN','FOURTEEN','FIFTEEN','SIXTEEN','SEVENTEEN','EIGHTEEN','NINETEEN','TWENTY'];
-            return names[n - 1];
-          } else {
-            return n.toUpperCase();
+        function playAudioSequence(sequence, elements = []) {
+          const audioFiles = sequence.map(n => {
+            if (typeof n === 'number') {
+              const names = ['ONE','TWO','THREE','FOUR','FIVE','SIX','SEVEN','EIGHT','NINE','TEN',
+                'ELEVEN','TWELVE','THIRTEEN','FOURTEEN','FIFTEEN','SIXTEEN','SEVENTEEN','EIGHTEEN','NINETEEN','TWENTY'];
+              return names[n - 1];
+            } else {
+              return n.toUpperCase();
+            }
+          });
+
+          let index = 0;
+          function playNext() {
+            if (index >= audioFiles.length) return;
+            const audio = new Audio(getAudioUrl(audioFiles[index]));
+            const el = elements[index];
+            if (el) {
+              el.classList.add('pulse');
+              setTimeout(() => el.classList.remove('pulse'), 500);
+            }
+            audio.onended = () => {
+              index++;
+              playNext();
+            };
+            audio.onerror = () => {
+              console.warn(`Missing audio: ${audioFiles[index]}`);
+              index++;
+              playNext();
+            };
+            audio.play();
+          }
+          playNext();
+        }
+
+        function playCorrectSound() {
+          const audio = new Audio(getAudioUrl("CORRECT"));
+          audio.play().catch(() => {});
+        }
+
+        function playIncorrectSound() {
+          const audio = new Audio(getAudioUrl("INCORRECT"));
+          audio.play().catch(() => {});
+        }
+
+        function generateQuestion() {
+          const allQuestions = [];
+          for (let i = min1; i <= max1; i++) {
+            for (let j = min2; j <= max2; j++) {
+              const key = `${i}+${j}`;
+              const count = questionStats[key] || 0;
+              allQuestions.push({ num1: i, num2: j, count });
+            }
+          }
+          allQuestions.sort((a, b) => a.count - b.count);
+          const candidates = allQuestions.slice(0, 5);
+          const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+          num1 = chosen.num1;
+          num2 = chosen.num2;
+
+          document.getElementById('digit-left').textContent = num1;
+          document.getElementById('digit-right').textContent = num2;
+          document.getElementById('input').value = '';
+          document.getElementById('feedback').textContent = '';
+
+          playAudioSequence(
+            [num1, 'plus', num2, 'equals'],
+            [
+              document.getElementById('digit-left'),
+              document.querySelectorAll('.symbol')[0],
+              document.getElementById('digit-right'),
+              document.querySelectorAll('.symbol')[1]
+            ]
+          );
+        }
+
+        window.startGame = function() {
+          min1 = parseInt(document.getElementById('min1').value);
+          max1 = parseInt(document.getElementById('max1').value);
+          min2 = parseInt(document.getElementById('min2').value);
+          max2 = parseInt(document.getElementById('max2').value);
+
+          document.getElementById('setup').style.display = 'none';
+          document.getElementById('score').style.display = 'block';
+          document.getElementById('question-container').style.display = 'flex';
+          document.getElementById('input').style.display = 'block';
+
+          const container = document.getElementById('game-container');
+          container.style.border = '1rem solid #001858';
+          container.style.borderRadius = '2rem';
+          container.style.padding = '2rem';
+
+          generateQuestion();
+        };
+
+        document.getElementById('input').addEventListener('input', function () {
+          const answer = parseInt(this.value, 10);
+          const correct = num1 + num2;
+
+          if (!isNaN(answer)) {
+            if (answer === correct) {
+              const key = `${num1}+${num2}`;
+              questionStats[key] = (questionStats[key] || 0) + 1;
+
+              score++;
+              document.getElementById('score').textContent = `Score: ${score}`;
+              const feedback = document.getElementById('feedback');
+              feedback.textContent = '✅ Correct!';
+              feedback.classList.add('correct-feedback');
+              playCorrectSound();
+
+              setTimeout(() => {
+                feedback.classList.remove('correct-feedback');
+                generateQuestion();
+              }, 1000);
+            } else if (answer > correct || this.value.length >= 2) {
+              const feedback = document.getElementById('feedback');
+              feedback.textContent = '❌ Try again!';
+              playIncorrectSound();
+
+              setTimeout(() => {
+                this.value = '';
+                feedback.textContent = '';
+              }, 1000);
+            }
           }
         });
-
-        let index = 0;
-        function playNext() {
-          if (index >= audioFiles.length) return;
-          const audio = new Audio(getAudioUrl(audioFiles[index]));
-          const el = elements[index];
-          if (el) {
-            el.classList.add('pulse');
-            setTimeout(() => el.classList.remove('pulse'), 500);
-          }
-          audio.onended = () => {
-            index++;
-            playNext();
-          };
-          audio.onerror = () => {
-            console.warn(`Missing audio: ${audioFiles[index]}`);
-            index++;
-            playNext();
-          };
-          audio.play();
-        }
-        playNext();
-      }
-
-      function playCorrectSound() {
-        const audio = new Audio(getAudioUrl("CORRECT"));
-        audio.play().catch(() => {});
-      }
-
-      function playIncorrectSound() {
-        const audio = new Audio(getAudioUrl("INCORRECT"));
-        audio.play().catch(() => {});
-      }
-
-      function generateQuestion() {
-        const allQuestions = [];
-        for (let i = min1; i <= max1; i++) {
-          for (let j = min2; j <= max2; j++) {
-            const key = `${i}+${j}`;
-            const count = questionStats[key] || 0;
-            allQuestions.push({ num1: i, num2: j, count });
-          }
-        }
-        allQuestions.sort((a, b) => a.count - b.count);
-        const candidates = allQuestions.slice(0, 5);
-        const chosen = candidates[Math.floor(Math.random() * candidates.length)];
-        num1 = chosen.num1;
-        num2 = chosen.num2;
-
-        document.getElementById('digit-left').textContent = num1;
-        document.getElementById('digit-right').textContent = num2;
-        document.getElementById('input').value = '';
-        document.getElementById('feedback').textContent = '';
-
-        playAudioSequence(
-          [num1, 'plus', num2, 'equals'],
-          [
-            document.getElementById('digit-left'),
-            document.querySelectorAll('.symbol')[0],
-            document.getElementById('digit-right'),
-            document.querySelectorAll('.symbol')[1]
-          ]
-        );
-      }
-
-      function startGame() {
-        min1 = parseInt(document.getElementById('min1').value);
-        max1 = parseInt(document.getElementById('max1').value);
-        min2 = parseInt(document.getElementById('min2').value);
-        max2 = parseInt(document.getElementById('max2').value);
-
-        document.getElementById('setup').style.display = 'none';
-        document.getElementById('score').style.display = 'block';
-        document.getElementById('question-container').style.display = 'flex';
-        document.getElementById('input').style.display = 'block';
-
-        const container = document.getElementById('game-container');
-        container.style.border = '1rem solid #001858';
-        container.style.borderRadius = '2rem';
-        container.style.padding = '2rem';
-
-        generateQuestion();
-      }
-      document.getElementById('input').addEventListener('input', function () {
-        const answer = parseInt(this.value, 10);
-        const correct = num1 + num2;
-
-        if (!isNaN(answer)) {
-          if (answer === correct) {
-            const key = `${num1}+${num2}`;
-            questionStats[key] = (questionStats[key] || 0) + 1;
-
-            score++;
-            document.getElementById('score').textContent = `Score: ${score}`;
-            const feedback = document.getElementById('feedback');
-            feedback.textContent = '✅ Correct!';
-            feedback.classList.add('correct-feedback');
-            playCorrectSound();
-
-            setTimeout(() => {
-              feedback.classList.remove('correct-feedback');
-              generateQuestion();
-            }, 1000);
-          } else if (answer > correct || this.value.length >= 2) {
-            const feedback = document.getElementById('feedback');
-            feedback.textContent = '❌ Try again!';
-            playIncorrectSound();
-
-            setTimeout(() => {
-              this.value = '';
-              feedback.textContent = '';
-            }, 1000);
-          }
-        }
       });
     </script>
   </div>
