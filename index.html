@@ -51,14 +51,11 @@
       transform: translateY(-2px) scale(1.04);
     }
 
-    /* Remove score */
-    /* #score { display: none; } */
-
     #question-container {
       display: flex;
       justify-content: center;
       align-items: flex-end;
-      gap: 4rem; /* Larger gap */
+      gap: 4rem;
       margin-bottom: 2rem;
       flex-wrap: wrap;
     }
@@ -68,11 +65,11 @@
       align-items: center;
     }
     .digit {
-      font-size: 9rem; /* Larger number */
+      font-size: 9rem;
       font-weight: bold;
     }
     .symbol {
-      font-size: 8rem; /* Larger symbol */
+      font-size: 8rem;
       font-weight: bold;
       display: flex;
       align-items: center;
@@ -82,7 +79,7 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 1.5rem; /* Larger gap */
+      gap: 1.5rem;
       margin-top: 1rem;
       margin-bottom: 2rem;
       max-width: 50rem;
@@ -93,13 +90,13 @@
       justify-content: center;
       padding: 0;
       line-height: 1;
-      font-size: 4rem;       /* Larger font */
-      width: 6rem;           /* Larger button */
+      font-size: 4rem;
+      width: 6rem;
       height: 6rem;
       background: linear-gradient(135deg, #f582ae 60%, #fcd5ce 100%);
       color: #001858;
       border: none;
-      border-radius: 2rem;   /* Larger radius */
+      border-radius: 2rem;
       cursor: pointer;
       box-shadow: 0 2px 12px rgba(245,130,174,0.12);
       transition: background 0.2s, transform 0.13s, box-shadow 0.2s;
@@ -107,18 +104,11 @@
       font-weight: 600;
       position: relative;
     }
-    .answer-btn:hover, .answer-btn:focus {
+    .answer-btn:hover, .answer-btn:focus, .answer-btn:active {
       background: linear-gradient(135deg, #ffb3c6 70%, #fcd5ce 100%);
       transform: translateY(-2px) scale(1.07);
       box-shadow: 0 4px 18px rgba(245,130,174,0.22);
       z-index: 1;
-    }
-    .answer-btn.selected {
-      background: linear-gradient(135deg, #fcd5ce 60%, #f582ae 100%);
-      color: #f582ae;
-      border: 2px solid #f582ae;
-      box-shadow: 0 0px 20px rgba(245,130,174,0.15);
-      transform: scale(1.1);
     }
     #feedback {
       margin-top: 2rem;
@@ -141,7 +131,6 @@
     .correct-feedback {
       animation: bounce 0.5s ease;
     }
-    /* Responsive styles for mobile */
     @media (max-width: 600px) {
       .number-block input {
         font-size: 1.5rem;
@@ -173,7 +162,6 @@
         border-radius: 1rem;
       }
     }
-    /* Style for the back button */
     #back-btn {
       font-size: 2rem;
       padding: 0.5rem 2rem;
@@ -233,7 +221,6 @@
         }
 
         let num1, num2;
-        // let score = 0; // REMOVE SCORE
         const questionStats = {};
         let min1 = 1, max1 = 10, min2 = 1, max2 = 10;
 
@@ -300,9 +287,6 @@
           document.getElementById('digit-right').textContent = num2;
           document.getElementById('feedback').textContent = '';
 
-          // Deselect all answer buttons
-          document.querySelectorAll('.answer-btn').forEach(btn => btn.classList.remove('selected'));
-
           playAudioSequence(
             [num1, 'plus', num2, 'equals'],
             [
@@ -323,13 +307,28 @@
             btn.textContent = i;
             btn.setAttribute('data-value', i);
             btn.addEventListener('click', function() {
-              // Deselect previous selection
-              document.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
-              btn.classList.add('selected');
               handleAnswer(i, btn);
             });
             buttonsContainer.appendChild(btn);
           }
+
+          // Prevent context menu and long-press on all answer buttons (mobile & desktop)
+          buttonsContainer.querySelectorAll('button').forEach(function(btn) {
+            btn.addEventListener('contextmenu', function(e) {
+              e.preventDefault();
+            });
+            btn.addEventListener('touchstart', function(e) {
+              btn._pressTimer = setTimeout(function() {
+                e.preventDefault();
+              }, 600);
+            });
+            btn.addEventListener('touchend', function(e) {
+              clearTimeout(btn._pressTimer);
+            });
+            btn.addEventListener('touchmove', function(e) {
+              clearTimeout(btn._pressTimer);
+            });
+          });
         }
 
         function handleAnswer(answer, btn) {
@@ -338,8 +337,6 @@
             const key = `${num1}+${num2}`;
             questionStats[key] = (questionStats[key] || 0) + 1;
 
-            // score++;
-            // document.getElementById('score').textContent = `Score: ${score}`; // REMOVE SCORE
             const feedback = document.getElementById('feedback');
             feedback.textContent = '✅ Correct!';
             feedback.classList.add('correct-feedback');
@@ -347,7 +344,6 @@
 
             setTimeout(() => {
               feedback.classList.remove('correct-feedback');
-              btn.classList.remove('selected');
               generateQuestion();
             }, 1000);
           } else {
@@ -357,7 +353,6 @@
 
             setTimeout(() => {
               feedback.textContent = '';
-              btn.classList.remove('selected');
             }, 900);
           }
         }
@@ -369,7 +364,6 @@
           max2 = parseInt(document.getElementById('max2').value);
 
           document.getElementById('setup').style.display = 'none';
-          // document.getElementById('score').style.display = 'block'; // REMOVE SCORE
           document.getElementById('question-container').style.display = 'flex';
           document.getElementById('answer-buttons').style.display = 'flex';
           document.getElementById('back-btn').style.display = 'inline-block';
@@ -396,6 +390,23 @@
           container.style.padding = '2rem';
         };
 
+        // Global: Prevent context menu and long-press for all buttons (optional, not just answer buttons)
+        document.querySelectorAll('button').forEach(function(btn) {
+          btn.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+          });
+          btn.addEventListener('touchstart', function(e) {
+            btn._pressTimer = setTimeout(function() {
+              e.preventDefault();
+            }, 600);
+          });
+          btn.addEventListener('touchend', function(e) {
+            clearTimeout(btn._pressTimer);
+          });
+          btn.addEventListener('touchmove', function(e) {
+            clearTimeout(btn._pressTimer);
+          });
+        });
       });
     </script>
   </div>
