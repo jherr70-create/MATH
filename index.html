@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -103,6 +103,29 @@
     }
     .correct-feedback {
       animation: bounce 0.5s ease;
+    }
+    /* Responsive styles for mobile */
+    @media (max-width: 600px) {
+      .number-block input {
+        font-size: 3rem;
+        width: 5rem;
+        letter-spacing: 0.3rem;
+        border-bottom-width: 3px;
+      }
+      .digit {
+        font-size: 4rem;
+      }
+      .symbol {
+        font-size: 4rem;
+        height: 4rem;
+      }
+      #game-container {
+        padding: 1rem;
+        border-width: 0.5rem;
+      }
+      #score, #feedback {
+        font-size: 2rem;
+      }
     }
   </style>
 </head>
